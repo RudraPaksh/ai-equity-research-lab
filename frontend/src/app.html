@@ -1,0 +1,2807 @@
+<div class="shell">
+
+  <!-- ========================================================= -->
+  <!-- SIDEBAR -->
+  <!-- ========================================================= -->
+
+  <aside class="sidebar">
+
+    <div class="brand">
+      <div class="brand-mark">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+
+      <div>
+        <strong>EquityOS</strong>
+        <small>AI Research Lab</small>
+      </div>
+    </div>
+
+
+    <div class="workspace-label">
+      RESEARCH
+    </div>
+
+    <nav>
+
+      <button class="nav-item active">
+        <span>⌂</span>
+        Research Desk
+      </button>
+
+      <button class="nav-item">
+        <span>◈</span>
+        Watchlist
+        <em>08</em>
+      </button>
+
+      <button class="nav-item">
+        <span>▦</span>
+        Markets
+      </button>
+
+      <button class="nav-item">
+        <span>◎</span>
+        Screener
+      </button>
+
+      <button class="nav-item">
+        <span>◌</span>
+        Portfolio
+      </button>
+
+    </nav>
+
+
+    <div class="workspace-label">
+      INTELLIGENCE
+    </div>
+
+    <nav>
+
+      <button class="nav-item">
+        <span>✦</span>
+        AI Analyst
+        <b class="new-dot">AI</b>
+      </button>
+
+      <button class="nav-item">
+        <span>⌁</span>
+        Filings &amp; RAG
+      </button>
+
+      <button class="nav-item">
+        <span>◒</span>
+        Backtests
+      </button>
+
+      <button class="nav-item">
+        <span>◇</span>
+        Risk Lab
+      </button>
+
+    </nav>
+
+
+    <div class="sidebar-bottom">
+
+      <div class="engine-status">
+        <i></i>
+
+        <div>
+          <strong>Research engine</strong>
+          <small>All systems operational</small>
+        </div>
+      </div>
+
+      <div class="version">
+        V0.5 • AI Research
+      </div>
+
+    </div>
+
+  </aside>
+
+
+  <!-- ========================================================= -->
+  <!-- MAIN CONTENT -->
+  <!-- ========================================================= -->
+
+  <main class="content">
+
+
+    <!-- ======================================================= -->
+    <!-- TOP BAR -->
+    <!-- ======================================================= -->
+
+    <header class="topbar">
+
+      <div>
+
+        <div class="eyebrow">
+          PERSONAL INVESTMENT RESEARCH TERMINAL
+        </div>
+
+        <h1>
+          Research Desk
+        </h1>
+
+      </div>
+
+
+      <div class="top-actions">
+
+        <button class="icon-button">
+          ⌘K
+        </button>
+
+        <button class="icon-button">
+          ◐
+        </button>
+
+        <div class="avatar">
+          VP
+        </div>
+
+      </div>
+
+    </header>
+
+
+
+    <!-- ======================================================= -->
+    <!-- SEARCH -->
+    <!-- ======================================================= -->
+
+    <section class="search-row">
+
+      <div class="search-box search-box-enhanced">
+
+        <span class="search-icon">
+          ⌕
+        </span>
+
+
+        <input
+          [(ngModel)]="symbol"
+          (input)="onSymbolInput()"
+          (keyup.enter)="analyze()"
+          placeholder="Search ticker, company or security…"
+          autocomplete="off"
+        />
+
+
+        <kbd>
+          ENTER
+        </kbd>
+
+
+        <div
+          class="symbol-results"
+          *ngIf="showSymbolResults && symbolResults.length"
+        >
+
+          <button
+            class="symbol-result"
+            *ngFor="let result of symbolResults"
+            (click)="selectSymbol(result)"
+          >
+
+            <div class="symbol-result-main">
+
+              <strong>
+                {{ result.symbol }}
+              </strong>
+
+              <span>
+                {{ result.name }}
+              </span>
+
+            </div>
+
+
+            <div class="symbol-result-meta">
+
+              <span>
+                {{ result.exchange }}
+              </span>
+
+              <span>
+                {{ result.currency }}
+              </span>
+
+              <span>
+                {{ result.country }}
+              </span>
+
+            </div>
+
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <!-- QUICK TICKERS -->
+
+      <div class="quick-tickers">
+
+        <button
+          (click)="quickSearch('AAPL')"
+        >
+          AAPL
+        </button>
+
+        <button
+          (click)="quickSearch('MSFT')"
+        >
+          MSFT
+        </button>
+
+        <button
+          (click)="quickSearch('NVDA')"
+        >
+          NVDA
+        </button>
+
+        <button
+          (click)="quickSearch('GOOGL')"
+        >
+          GOOGL
+        </button>
+
+      </div>
+
+
+      <!-- ANALYZE -->
+
+      <button
+        class="analyze-btn"
+        (click)="analyze()"
+        [disabled]="loading()"
+      >
+
+        <span>
+          {{ loading() ? 'Analyzing…' : 'Analyze security' }}
+        </span>
+
+        <span>
+          →
+        </span>
+
+      </button>
+
+    </section>
+
+
+
+    <!-- ======================================================= -->
+    <!-- GLOBAL ERROR -->
+    <!-- ======================================================= -->
+
+    <div
+      class="error-banner"
+      *ngIf="error()"
+    >
+      ⚠ {{ error() }}
+    </div>
+
+
+    <!-- ======================================================= -->
+    <!-- GLOBAL LOADING -->
+    <!-- ======================================================= -->
+
+    <div
+      class="loading-line"
+      *ngIf="loading()"
+    >
+      <span></span>
+    </div>
+
+
+
+    <!-- ======================================================= -->
+    <!-- STOCK WORKSPACE -->
+    <!-- ======================================================= -->
+
+    <ng-container
+      *ngIf="stock() as r; else emptyState"
+    >
+
+
+      <!-- ===================================================== -->
+      <!-- HERO -->
+      <!-- ===================================================== -->
+
+      <section class="hero-grid">
+
+
+        <!-- COMPANY CARD -->
+
+        <article class="company-card panel">
+
+          <div class="company-head">
+
+
+            <div class="ticker-badge">
+              {{ symbol.slice(0, 1) }}
+            </div>
+
+
+            <div class="company-identity">
+
+              <span class="ticker">
+                {{ symbol }}
+              </span>
+
+              <span class="company-name">
+                {{ securityName }}
+              </span>
+
+              <span class="exchange">
+
+                {{ securityExchange }}
+
+                <span>•</span>
+
+                {{ securityCountry }}
+
+                <span>•</span>
+
+                {{ securityCurrency }}
+
+              </span>
+
+            </div>
+
+
+            <button class="star">
+              ☆
+            </button>
+
+          </div>
+
+
+          <div class="price-line">
+
+            <span class="price">
+              {{ price | number:'1.2-2' }}
+            </span>
+
+            <span class="currency">
+              {{ securityCurrency }}
+            </span>
+
+          </div>
+
+
+          <div class="price-meta">
+
+            <span class="pulse-dot"></span>
+
+            Market data
+
+            <span>•</span>
+
+            Latest available
+
+          </div>
+
+
+          <div class="mini-chart">
+
+            <svg
+              viewBox="0 0 700 170"
+              preserveAspectRatio="none"
+            >
+
+              <defs>
+
+                <linearGradient
+                  id="area"
+                  x1="0"
+                  x2="0"
+                  y1="0"
+                  y2="1"
+                >
+
+                  <stop
+                    offset="0%"
+                    stop-opacity=".32"
+                  />
+
+                  <stop
+                    offset="100%"
+                    stop-opacity="0"
+                  />
+
+                </linearGradient>
+
+              </defs>
+
+
+              <path
+                d="M0,135 C35,125 45,145 78,118 S122,85 155,103
+                   S195,120 225,82 S265,50 300,76 S342,110 370,88
+                   S410,70 438,92 S474,118 505,71 S550,34 585,60
+                   S625,84 652,46 S682,33 700,20 L700,170 L0,170 Z"
+                fill="url(#area)"
+              />
+
+
+              <path
+                d="M0,135 C35,125 45,145 78,118 S122,85 155,103
+                   S195,120 225,82 S265,50 300,76 S342,110 370,88
+                   S410,70 438,92 S474,118 505,71 S550,34 585,60
+                   S625,84 652,46 S682,33 700,20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+                vector-effect="non-scaling-stroke"
+              />
+
+            </svg>
+
+
+            <div class="chart-labels">
+
+              <span>1M</span>
+              <span>3M</span>
+              <span>6M</span>
+              <span>1Y</span>
+              <span>5Y</span>
+
+            </div>
+
+          </div>
+
+        </article>
+
+
+
+        <!-- MODEL OUTLOOK -->
+
+        <article class="signal-card panel">
+
+          <div class="card-title">
+
+            <div>
+
+              <span class="section-kicker">
+                MODEL OUTLOOK
+              </span>
+
+              <h2>
+                Probability engine
+              </h2>
+
+            </div>
+
+            <span class="confidence-pill">
+              ML • {{ modelName }}
+            </span>
+
+          </div>
+
+
+          <div
+            class="signal-ring"
+            [style.--p]="(upProbability * 100) + '%'"
+          >
+
+            <div>
+
+              <strong>
+                {{ upProbability | percent:'1.0-0' }}
+              </strong>
+
+              <small>
+                prob. upside
+              </small>
+
+            </div>
+
+          </div>
+
+
+          <div class="prob-row">
+
+            <div>
+
+              <span class="dot up"></span>
+
+              Upside
+
+              <strong>
+                {{ upProbability | percent:'1.0-0' }}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span class="dot down"></span>
+
+              Downside
+
+              <strong>
+                {{ downProbability | percent:'1.0-0' }}
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <div class="signal-footer">
+
+            <span class="signal-badge">
+              {{ signal }}
+            </span>
+
+            <span>
+              Out-of-sample accuracy
+              {{ accuracy | percent:'1.0-0' }}
+            </span>
+
+          </div>
+
+        </article>
+
+
+
+        <!-- SCORECARD -->
+
+        <article class="score-card panel">
+
+          <div class="card-title">
+
+            <div>
+
+              <span class="section-kicker">
+                RESEARCH SCORECARD
+              </span>
+
+              <h2>
+                Signal stack
+              </h2>
+
+            </div>
+
+            <span class="tiny-muted">
+              0–100
+            </span>
+
+          </div>
+
+
+          <div class="score-list">
+
+            <div
+              class="score-item"
+              *ngFor="let f of factorRows()"
+            >
+
+              <div class="score-name">
+
+                <span>
+                  {{ f.key }}
+                </span>
+
+                <b>
+                  {{ f.value | number:'1.0-0' }}
+                </b>
+
+              </div>
+
+
+              <div class="bar">
+
+                <span
+                  [style.width.%]="barWidth(f.value)"
+                ></span>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </article>
+
+      </section>
+
+
+
+      <!-- ===================================================== -->
+      <!-- TABS -->
+      <!-- ===================================================== -->
+
+      <div class="tabs">
+
+        <button
+          *ngFor="let tab of tabs"
+          [class.active]="activeTab === tab"
+          (click)="setTab(tab)"
+        >
+          {{ tab }}
+        </button>
+
+      </div>
+
+
+
+      <!-- ===================================================== -->
+      <!-- OVERVIEW -->
+      <!-- ===================================================== -->
+
+      <section
+        class="overview-grid"
+        *ngIf="activeTab === 'Overview'"
+      >
+
+
+        <article class="panel metric-panel">
+
+          <div class="section-kicker">
+            RISK
+          </div>
+
+          <div class="metric-value">
+            {{ volatility | percent:'1.1-1' }}
+          </div>
+
+          <div class="metric-caption">
+            Annualized volatility
+          </div>
+
+          <div class="metric-sub">
+
+            Max drawdown
+
+            <strong>
+              {{ drawdown | percent:'1.1-1' }}
+            </strong>
+
+          </div>
+
+        </article>
+
+
+
+        <article class="panel metric-panel">
+
+          <div class="section-kicker">
+            RISK ADJUSTED
+          </div>
+
+          <div class="metric-value">
+            {{ sharpe | number:'1.2-2' }}
+          </div>
+
+          <div class="metric-caption">
+            Approx. Sharpe ratio
+          </div>
+
+          <div class="metric-sub">
+            Higher is better, context matters
+          </div>
+
+        </article>
+
+
+
+        <article class="panel metric-panel">
+
+          <div class="section-kicker">
+            MODEL QUALITY
+          </div>
+
+          <div class="metric-value">
+            {{ rocAuc | number:'1.2-2' }}
+          </div>
+
+          <div class="metric-caption">
+            ROC-AUC
+          </div>
+
+          <div class="metric-sub">
+            Chronological holdout evaluation
+          </div>
+
+        </article>
+
+
+
+        <article class="panel metric-panel">
+
+          <div class="section-kicker">
+            DATA ENGINE
+          </div>
+
+          <div class="metric-value">
+            V0.5
+          </div>
+
+          <div class="metric-caption">
+            Quant + valuation + AI
+          </div>
+
+          <div class="metric-sub">
+
+            <span class="healthy">
+              ●
+            </span>
+
+            Yahoo · FMP · SEC · GDELT
+
+          </div>
+
+        </article>
+
+
+
+        <!-- AI RESEARCH SNAPSHOT -->
+
+        <article class="panel wide-card thesis-card">
+
+          <div class="card-title">
+
+            <div>
+
+              <span class="section-kicker">
+                AI RESEARCH SNAPSHOT
+              </span>
+
+              <h2>
+                What the engine sees
+              </h2>
+
+            </div>
+
+            <button
+              class="text-btn"
+              (click)="setTab('AI Research')"
+            >
+              Open analyst →
+            </button>
+
+          </div>
+
+
+          <div class="thesis-columns">
+
+            <div>
+
+              <span class="thesis-icon positive">
+                ↗
+              </span>
+
+              <div>
+
+                <h3>
+                  Momentum &amp; trend
+                </h3>
+
+                <p>
+                  Technical factors are aggregated from
+                  price, momentum and trend indicators.
+                  Use the model probability alongside
+                  valuation and fundamental evidence.
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <div>
+
+              <span class="thesis-icon risk">
+                !
+              </span>
+
+              <div>
+
+                <h3>
+                  Risk matters
+                </h3>
+
+                <p>
+                  Volatility and drawdown provide a risk
+                  context. A high probability signal does
+                  not remove downside or model uncertainty.
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <div>
+
+              <span class="thesis-icon neutral">
+                ◇
+              </span>
+
+              <div>
+
+                <h3>
+                  Next evidence
+                </h3>
+
+                <p>
+                  Open Financials, News and AI Research
+                  after the data providers respond to build
+                  a complete investment thesis.
+                </p>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </article>
+
+
+
+        <!-- RESEARCH PIPELINE -->
+
+        <article class="panel wide-card research-map">
+
+          <div class="card-title">
+
+            <div>
+
+              <span class="section-kicker">
+                RESEARCH PIPELINE
+              </span>
+
+              <h2>
+                From raw data to investment thesis
+              </h2>
+
+            </div>
+
+          </div>
+
+
+          <div class="pipeline">
+
+            <div>
+              <b>01</b>
+              <span>Market data</span>
+              <small>Price • volume</small>
+            </div>
+
+            <i>→</i>
+
+            <div>
+              <b>02</b>
+              <span>Quant</span>
+              <small>Factors • risk</small>
+            </div>
+
+            <i>→</i>
+
+            <div>
+              <b>03</b>
+              <span>Valuation</span>
+              <small>DCF • multiples</small>
+            </div>
+
+            <i>→</i>
+
+            <div>
+              <b>04</b>
+              <span>ML</span>
+              <small>Probability</small>
+            </div>
+
+            <i>→</i>
+
+            <div>
+              <b>05</b>
+              <span>AI Analyst</span>
+              <small>Evidence • thesis</small>
+            </div>
+
+          </div>
+
+        </article>
+
+      </section>
+
+
+
+      <!-- ===================================================== -->
+      <!-- VALUATION -->
+      <!-- ===================================================== -->
+
+      <section
+        *ngIf="activeTab === 'Valuation'"
+        class="tab-grid"
+      >
+
+        <article class="panel form-card">
+
+          <div class="card-title">
+
+            <div>
+
+              <span class="section-kicker">
+                V0.3
+              </span>
+
+              <h2>
+                Scenario DCF
+              </h2>
+
+            </div>
+
+            <span class="confidence-pill">
+              Bear / Base / Bull
+            </span>
+
+          </div>
+
+
+          <div class="form-grid">
+
+            <label>
+              Revenue
+              <input
+                type="number"
+                [(ngModel)]="dcfInput.revenue"
+              />
+            </label>
+
+
+            <label>
+              Shares
+              <input
+                type="number"
+                [(ngModel)]="dcfInput.shares"
+              />
+            </label>
+
+
+            <label>
+              Growth
+              <input
+                type="number"
+                step="0.01"
+                [(ngModel)]="dcfInput.growth"
+              />
+            </label>
+
+
+            <label>
+              FCF margin
+              <input
+                type="number"
+                step="0.01"
+                [(ngModel)]="dcfInput.fcf_margin"
+              />
+            </label>
+
+
+            <label>
+              WACC
+              <input
+                type="number"
+                step="0.01"
+                [(ngModel)]="dcfInput.wacc"
+              />
+            </label>
+
+
+            <label>
+              Terminal growth
+              <input
+                type="number"
+                step="0.01"
+                [(ngModel)]="dcfInput.terminal_growth"
+              />
+            </label>
+
+          </div>
+
+
+          <button
+            class="analyze-btn full"
+            (click)="calculateDcf()"
+          >
+
+            {{
+              dcfLoading()
+                ? 'Calculating…'
+                : 'Run DCF valuation →'
+            }}
+
+          </button>
+
+        </article>
+
+
+
+        <article
+          class="panel"
+          *ngIf="dcf() as d"
+        >
+
+          <div class="card-title">
+
+            <div>
+
+              <span class="section-kicker">
+                VALUATION OUTPUT
+              </span>
+
+              <h2>
+                Scenario range
+              </h2>
+
+            </div>
+
+          </div>
+
+
+          <div class="valuation-cards">
+
+            <div
+              *ngFor="let item of (d.scenarios | keyvalue)"
+              class="valuation-item"
+            >
+
+              <span>
+                {{ item.key }}
+              </span>
+
+              <strong>
+                {{ item.value?.value_per_share | number:'1.2-2' }}
+              </strong>
+
+              <small>
+                value / share
+              </small>
+
+            </div>
+
+          </div>
+
+
+          <div class="sensitivity">
+
+            <h3>
+              Sensitivity matrix
+            </h3>
+
+            <pre>{{ d.sensitivity | json }}</pre>
+
+          </div>
+
+        </article>
+
+      </section>
+
+
+
+      <!-- ===================================================== -->
+      <!-- FINANCIALS -->
+      <!-- ===================================================== -->
+
+      <section
+        *ngIf="activeTab === 'Financials'"
+        class="tab-grid"
+      >
+
+        <article class="panel">
+
+          <div class="card-title">
+
+            <div>
+
+              <span class="section-kicker">
+                FMP
+              </span>
+
+              <h2>
+                Company fundamentals
+              </h2>
+
+            </div>
+
+          </div>
+
+
+          <div
+            *ngIf="fundamentals; else noFund"
+          >
+
+            <pre class="data-block">{{ fundamentals | json }}</pre>
+
+          </div>
+
+
+          <ng-template #noFund>
+
+            <div class="empty-inline">
+              Fundamentals are unavailable.
+              Check your FMP API key.
+            </div>
+
+          </ng-template>
+
+        </article>
+
+      </section>
+
+
+
+      <!-- ===================================================== -->
+      <!-- NEWS -->
+      <!-- ===================================================== -->
+
+      <section
+        *ngIf="activeTab === 'News'"
+        class="tab-grid"
+      >
+
+        <article class="panel">
+
+          <div class="card-title">
+
+            <div>
+
+              <span class="section-kicker">
+                NEWS FLOW
+              </span>
+
+              <h2>
+                {{ symbol }} intelligence
+              </h2>
+
+            </div>
+
+          </div>
+
+
+          <div
+            class="news-list"
+            *ngIf="news?.articles?.length; else noNews"
+          >
+
+            <a
+              *ngFor="let article of news.articles"
+              [href]="article.url || article.link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+
+              <span class="news-dot"></span>
+
+              <div>
+
+                <strong>
+                  {{ article.title || article.name }}
+                </strong>
+
+                <small>
+                  {{ article.source || article.domain || 'News source' }}
+                </small>
+
+              </div>
+
+              <span>
+                ↗
+              </span>
+
+            </a>
+
+          </div>
+
+
+          <ng-template #noNews>
+
+            <div class="empty-inline">
+              No news returned by the provider yet.
+            </div>
+
+          </ng-template>
+
+        </article>
+
+      </section>
+
+
+
+      <!-- ===================================================== -->
+      <!-- AI RESEARCH -->
+      <!-- ===================================================== -->
+
+      <section
+        *ngIf="activeTab === 'AI Research'"
+        class="ai-research-page"
+      >
+
+
+        <!-- ================================================= -->
+        <!-- AI ANALYST HEADER -->
+        <!-- ================================================= -->
+
+        <article class="panel analyst-hero">
+
+          <div class="ai-orb large">
+            ✦
+          </div>
+
+
+          <div class="analyst-hero-copy">
+
+            <div class="section-kicker">
+              AI EQUITY ANALYST • V0.5
+            </div>
+
+
+            <h2>
+              Evidence-first research layer
+            </h2>
+
+
+            <p>
+              Quantitative signals, market regime,
+              fundamentals, news, SEC evidence and
+              RAG are combined into one research workflow.
+            </p>
+
+          </div>
+
+
+          <div class="analyst-status">
+
+            <span class="status-dot"></span>
+
+
+            <span *ngIf="!analystLoading()">
+              Research ready
+            </span>
+
+
+            <span *ngIf="analystLoading()">
+              Analyzing...
+            </span>
+
+          </div>
+
+        </article>
+
+
+
+        <!-- ================================================= -->
+        <!-- ANALYST LOADING -->
+        <!-- ================================================= -->
+
+        <article
+          *ngIf="analystLoading()"
+          class="panel analyst-loading"
+        >
+
+          <div class="loading-spinner"></div>
+
+
+          <div>
+
+            <strong>
+              AI Analyst is researching {{ symbol }}
+            </strong>
+
+            <p>
+              Combining quantitative signals, news,
+              filings, fundamentals and research evidence...
+            </p>
+
+          </div>
+
+        </article>
+
+
+
+        <!-- ================================================= -->
+        <!-- ANALYST ERROR -->
+        <!-- ================================================= -->
+
+        <article
+          *ngIf="!analystLoading() && analystError()"
+          class="panel analyst-error"
+        >
+
+          <strong>
+            AI Analyst unavailable
+          </strong>
+
+          <p>
+            {{ analystError() }}
+          </p>
+
+        </article>
+
+
+
+        <!-- ================================================= -->
+        <!-- ANALYST REPORT -->
+        <!-- ================================================= -->
+
+        <ng-container
+          *ngIf="analyst() as a"
+        >
+
+
+          <!-- =============================================== -->
+          <!-- RESEARCH SUMMARY -->
+          <!-- =============================================== -->
+
+          <article class="panel research-summary">
+
+            <div class="section-heading">
+
+              <div>
+
+                <span class="section-kicker">
+                  RESEARCH SUMMARY
+                </span>
+
+                <h2>
+                  {{ a.research_summary?.headline }}
+                </h2>
+
+              </div>
+
+
+              <div class="confidence-badge">
+                {{ a.confidence?.level }}
+              </div>
+
+            </div>
+
+
+            <div class="summary-grid">
+
+
+              <div class="summary-metric">
+
+                <span>
+                  20D Expected Return
+                </span>
+
+                <strong
+                  [class.negative-number]="
+                    a.research_summary?.expected_return_20d < 0
+                  "
+                  [class.positive-number]="
+                    a.research_summary?.expected_return_20d > 0
+                  "
+                >
+                  {{ a.research_summary?.expected_return_20d | number:'1.2-2' }}%
+                </strong>
+
+              </div>
+
+
+              <div class="summary-metric">
+
+                <span>
+                  UP Probability
+                </span>
+
+                <strong>
+                  {{ a.research_summary?.probability_up_20d | number:'1.1-1' }}%
+                </strong>
+
+              </div>
+
+
+              <div class="summary-metric">
+
+                <span>
+                  Sideways
+                </span>
+
+                <strong>
+                  {{ a.research_summary?.probability_sideways_20d | number:'1.1-1' }}%
+                </strong>
+
+              </div>
+
+
+              <div class="summary-metric">
+
+                <span>
+                  DOWN Probability
+                </span>
+
+                <strong>
+                  {{ a.research_summary?.probability_down_20d | number:'1.1-1' }}%
+                </strong>
+
+              </div>
+
+
+              <div class="summary-metric">
+
+                <span>
+                  Uncertainty
+                </span>
+
+                <strong>
+                  {{ a.research_summary?.uncertainty_20d | number:'1.2-2' }}%
+                </strong>
+
+              </div>
+
+            </div>
+
+
+            <div class="research-meta">
+
+              <span>
+                Regime:
+
+                <strong>
+                  {{ a.research_summary?.regime?.trend || '—' }}
+                </strong>
+              </span>
+
+
+              <span>
+                Volatility:
+
+                <strong>
+                  {{ a.research_summary?.regime?.volatility || '—' }}
+                </strong>
+              </span>
+
+
+              <span>
+                Confidence:
+
+                <strong>
+                  {{ a.confidence?.level || '—' }}
+                </strong>
+              </span>
+
+            </div>
+
+          </article>
+
+
+
+          <!-- =============================================== -->
+          <!-- WHY + CONFIDENCE -->
+          <!-- =============================================== -->
+
+          <div class="analyst-two-column">
+
+
+            <!-- MODEL EXPLANATION -->
+
+            <article class="panel">
+
+              <div class="section-heading">
+
+                <div>
+
+                  <span class="section-kicker">
+                    MODEL EXPLANATION
+                  </span>
+
+                  <h2>
+                    Why is the model saying this?
+                  </h2>
+
+                </div>
+
+              </div>
+
+
+              <div class="evidence-list">
+
+
+                <div
+                  *ngFor="
+                    let item of a.why?.supporting_evidence
+                  "
+                  class="evidence-row positive-evidence"
+                >
+
+                  <div class="evidence-icon">
+                    +
+                  </div>
+
+
+                  <div>
+
+                    <strong>
+                      {{ item.title }}
+                    </strong>
+
+                    <p>
+                      {{ item.detail }}
+                    </p>
+
+                  </div>
+
+                </div>
+
+
+                <div
+                  *ngFor="
+                    let item of a.why?.negative_evidence
+                  "
+                  class="evidence-row negative-evidence"
+                >
+
+                  <div class="evidence-icon">
+                    −
+                  </div>
+
+
+                  <div>
+
+                    <strong>
+                      {{ item.title }}
+                    </strong>
+
+                    <p>
+                      {{ item.detail }}
+                    </p>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            </article>
+
+
+
+            <!-- CONFIDENCE -->
+
+            <article class="panel">
+
+              <span class="section-kicker">
+                RESEARCH QUALITY
+              </span>
+
+              <h2>
+                Confidence &amp; limitations
+              </h2>
+
+
+              <div class="confidence-score">
+
+                <strong>
+                  {{ a.confidence?.level || '—' }}
+                </strong>
+
+                <span>
+
+                  {{ a.confidence?.score || 0 }}
+
+                  /
+
+                  {{ a.confidence?.max_score || 0 }}
+
+                </span>
+
+              </div>
+
+
+              <p>
+                {{ a.confidence?.explanation }}
+              </p>
+
+
+              <div class="quality-list">
+
+
+                <div>
+
+                  <span>
+                    Market data
+                  </span>
+
+                  <strong>
+                    {{
+                      a.data_quality?.market_data
+                        ? 'Available'
+                        : 'Missing'
+                    }}
+                  </strong>
+
+                </div>
+
+
+                <div>
+
+                  <span>
+                    Forecast
+                  </span>
+
+                  <strong>
+                    {{
+                      a.data_quality?.forecast
+                        ? 'Available'
+                        : 'Missing'
+                    }}
+                  </strong>
+
+                </div>
+
+
+                <div>
+
+                  <span>
+                    Fundamentals
+                  </span>
+
+                  <strong>
+                    {{
+                      a.data_quality?.fundamentals
+                        ? 'Available'
+                        : 'Limited'
+                    }}
+                  </strong>
+
+                </div>
+
+
+                <div>
+
+                  <span>
+                    News
+                  </span>
+
+                  <strong>
+                    {{
+                      a.data_quality?.news
+                        ? 'Available'
+                        : 'Limited'
+                    }}
+                  </strong>
+
+                </div>
+
+
+                <div>
+
+                  <span>
+                    SEC
+                  </span>
+
+                  <strong>
+                    {{
+                      a.data_quality?.sec
+                        ? 'Available'
+                        : 'Limited'
+                    }}
+                  </strong>
+
+                </div>
+
+
+                <div>
+
+                  <span>
+                    RAG
+                  </span>
+
+                  <strong>
+                    {{
+                      a.data_quality?.rag
+                        ? 'Available'
+                        : 'Not indexed'
+                    }}
+                  </strong>
+
+                </div>
+
+              </div>
+
+            </article>
+
+          </div>
+
+
+
+          <!-- =============================================== -->
+          <!-- BULL / BASE / BEAR -->
+          <!-- =============================================== -->
+
+          <div class="scenario-grid">
+
+
+            <!-- BULL -->
+
+            <article class="panel scenario-card bull-case">
+
+              <span class="scenario-label">
+                BULL CASE
+              </span>
+
+              <h2>
+                What could go right?
+              </h2>
+
+
+              <ul>
+
+                <li
+                  *ngFor="let item of a.bull_case"
+                >
+                  {{ item }}
+                </li>
+
+              </ul>
+
+            </article>
+
+
+
+            <!-- BASE -->
+
+            <article class="panel scenario-card base-case">
+
+              <span class="scenario-label">
+                BASE CASE
+              </span>
+
+              <h2>
+                What happens if nothing changes?
+              </h2>
+
+
+              <ul>
+
+                <li
+                  *ngFor="let item of a.base_case"
+                >
+                  {{ item }}
+                </li>
+
+              </ul>
+
+            </article>
+
+
+
+            <!-- BEAR -->
+
+            <article class="panel scenario-card bear-case">
+
+              <span class="scenario-label">
+                BEAR CASE
+              </span>
+
+              <h2>
+                What could go wrong?
+              </h2>
+
+
+              <ul>
+
+                <li
+                  *ngFor="let item of a.bear_case"
+                >
+                  {{ item }}
+                </li>
+
+              </ul>
+
+            </article>
+
+          </div>
+
+
+
+          <!-- =============================================== -->
+          <!-- CATALYSTS + RISKS -->
+          <!-- =============================================== -->
+
+          <div class="analyst-two-column">
+
+
+            <!-- CATALYSTS -->
+
+            <article class="panel">
+
+              <span class="section-kicker">
+                CATALYST WATCH
+              </span>
+
+              <h2>
+                What could change the thesis?
+              </h2>
+
+
+              <div class="bullet-list">
+
+                <div
+                  *ngFor="let item of a.catalysts"
+                  class="bullet-item"
+                >
+
+                  <span>
+                    →
+                  </span>
+
+                  {{ item }}
+
+                </div>
+
+              </div>
+
+            </article>
+
+
+
+            <!-- RISKS -->
+
+            <article class="panel">
+
+              <span class="section-kicker">
+                RISK LAB
+              </span>
+
+              <h2>
+                Key risks
+              </h2>
+
+
+              <div class="bullet-list">
+
+                <div
+                  *ngFor="let item of a.risks"
+                  class="bullet-item"
+                >
+
+                  <span>
+                    !
+                  </span>
+
+                  {{ item }}
+
+                </div>
+
+              </div>
+
+            </article>
+
+          </div>
+
+
+
+          <!-- =============================================== -->
+          <!-- THESIS BREAKERS -->
+          <!-- =============================================== -->
+
+          <article class="panel thesis-panel">
+
+            <div class="section-heading">
+
+              <div>
+
+                <span class="section-kicker">
+                  THESIS BREAKERS
+                </span>
+
+                <h2>
+                  What would invalidate the current thesis?
+                </h2>
+
+              </div>
+
+            </div>
+
+
+            <div class="thesis-grid">
+
+              <div
+                *ngFor="let item of a.thesis_breakers"
+                class="thesis-item"
+              >
+
+                <span class="thesis-number">
+                  #
+                </span>
+
+                <p>
+                  {{ item }}
+                </p>
+
+              </div>
+
+            </div>
+
+          </article>
+
+
+
+          <!-- =============================================== -->
+          <!-- WHAT COULD MAKE ME WRONG -->
+          <!-- =============================================== -->
+
+          <article class="panel wrong-panel">
+
+            <span class="section-kicker">
+              ADVERSARIAL REVIEW
+            </span>
+
+            <h2>
+              What could make me wrong?
+            </h2>
+
+
+            <p class="panel-description">
+              The analyst actively looks for conditions
+              that could invalidate the current quantitative
+              interpretation.
+            </p>
+
+
+            <div class="bullet-list">
+
+              <div
+                *ngFor="let item of a.what_could_make_me_wrong"
+                class="bullet-item"
+              >
+
+                <span>
+                  ?
+                </span>
+
+                {{ item }}
+
+              </div>
+
+            </div>
+
+          </article>
+
+
+
+          <!-- =============================================== -->
+          <!-- RESEARCH QUESTIONS -->
+          <!-- =============================================== -->
+
+          <article class="panel">
+
+            <span class="section-kicker">
+              NEXT RESEARCH QUESTIONS
+            </span>
+
+            <h2>
+              Questions the analyst should investigate
+            </h2>
+
+
+            <div class="research-question-grid">
+
+              <div
+                *ngFor="let question of a.research_questions"
+                class="research-question"
+              >
+
+                <span>
+                  ?
+                </span>
+
+                <p>
+                  {{ question }}
+                </p>
+
+              </div>
+
+            </div>
+
+          </article>
+
+
+
+          <!-- =============================================== -->
+          <!-- EVIDENCE LEDGER -->
+          <!-- =============================================== -->
+
+          <article class="panel">
+
+            <div class="section-heading">
+
+              <div>
+
+                <span class="section-kicker">
+                  EVIDENCE LEDGER
+                </span>
+
+                <h2>
+                  Research evidence
+                </h2>
+
+              </div>
+
+
+              <span class="evidence-count">
+                {{ a.evidence?.length || 0 }} signals
+              </span>
+
+            </div>
+
+
+            <div class="evidence-ledger">
+
+              <div
+                *ngFor="let item of a.evidence"
+                class="ledger-row"
+              >
+
+                <div class="ledger-type">
+                  {{ item.type }}
+                </div>
+
+
+                <div class="ledger-content">
+
+                  <strong>
+                    {{ item.title }}
+                  </strong>
+
+                  <p>
+                    {{ item.detail }}
+                  </p>
+
+                </div>
+
+
+                <div
+                  class="ledger-impact"
+                  [class.impact-positive]="
+                    item.impact === 'positive'
+                  "
+                  [class.impact-negative]="
+                    item.impact === 'negative'
+                  "
+                >
+                  {{ item.impact }}
+                </div>
+
+              </div>
+
+            </div>
+
+          </article>
+
+
+
+          <!-- =============================================== -->
+          <!-- RAG -->
+          <!-- =============================================== -->
+
+          <article class="panel">
+
+            <span class="section-kicker">
+              RAG RESEARCH
+            </span>
+
+            <h2>
+              Retrieved research evidence
+            </h2>
+
+
+            <div
+              *ngIf="a.rag?.available"
+              class="rag-list"
+            >
+
+              <div
+                *ngFor="let result of a.rag?.results"
+                class="rag-item"
+              >
+
+                <strong>
+                  {{
+                    result.title ||
+                    result.id ||
+                    'Research document'
+                  }}
+                </strong>
+
+
+                <p>
+                  {{
+                    result.text ||
+                    result.content ||
+                    result.snippet ||
+                    ''
+                  }}
+                </p>
+
+
+                <small>
+                  {{
+                    result.source ||
+                    'Local research corpus'
+                  }}
+                </small>
+
+              </div>
+
+            </div>
+
+
+            <div
+              *ngIf="!a.rag?.available"
+              class="rag-empty"
+            >
+
+              <strong>
+                RAG corpus not populated yet
+              </strong>
+
+              <p>
+                Add SEC filings, earnings transcripts,
+                investor presentations and research documents
+                to activate citation-backed retrieval.
+              </p>
+
+            </div>
+
+          </article>
+
+
+
+        </ng-container>
+
+
+
+        <!-- ================================================= -->
+        <!-- AI FORECAST ENGINE -->
+        <!-- ================================================= -->
+
+        <article class="panel forecast-panel">
+
+          <div class="card-title">
+
+            <div>
+
+              <span class="section-kicker">
+                AI FORECAST ENGINE
+              </span>
+
+              <h2>
+                Multi-Horizon Outlook
+              </h2>
+
+            </div>
+
+
+            <span class="confidence-pill">
+
+              {{
+                forecastLoading()
+                  ? 'Running models…'
+                  : 'Research estimate'
+              }}
+
+            </span>
+
+          </div>
+
+
+
+          <!-- FORECAST LOADING -->
+
+          <div
+            class="forecast-loading"
+            *ngIf="forecastLoading()"
+          >
+
+            <div class="loading-spinner"></div>
+
+            <div>
+
+              <strong>
+                Running AI forecast engine
+              </strong>
+
+              <small>
+                Ensemble + Gaussian Process + regime analysis
+              </small>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- FORECAST CONTENT -->
+
+          <div
+            *ngIf="forecast() as f"
+            class="forecast-content"
+          >
+
+
+            <!-- FORECAST META -->
+
+            <div class="forecast-meta">
+
+
+              <div>
+
+                <span>
+                  DATA FREQUENCY
+                </span>
+
+                <strong>
+                  {{ f.data_frequency }}
+                </strong>
+
+              </div>
+
+
+              <div>
+
+                <span>
+                  REGIME
+                </span>
+
+                <strong>
+                  {{ f.regime?.trend | uppercase }}
+                </strong>
+
+              </div>
+
+
+              <div>
+
+                <span>
+                  VOLATILITY
+                </span>
+
+                <strong>
+                  {{ f.regime?.volatility | uppercase }}
+                </strong>
+
+              </div>
+
+
+              <div>
+
+                <span>
+                  MODEL
+                </span>
+
+                <strong>
+                  Ensemble
+                </strong>
+
+              </div>
+
+            </div>
+
+
+
+            <!-- FORECAST HORIZONS -->
+
+            <div class="forecast-grid">
+
+
+              <!-- 1 DAY -->
+
+              <div
+                class="forecast-card"
+                *ngIf="f.forecasts?.['1d'] as h"
+              >
+
+                <div class="forecast-header">
+
+                  <span>
+                    1 DAY
+                  </span>
+
+                  <strong
+                    [class.forecast-up]="h.direction === 'up'"
+                    [class.forecast-down]="h.direction === 'down'"
+                  >
+                    {{ h.direction | uppercase }}
+                  </strong>
+
+                </div>
+
+
+                <div class="forecast-return">
+
+                  {{
+                    h.expected_return * 100
+                    | number:'1.2-2'
+                  }}%
+
+                </div>
+
+
+                <div class="forecast-probs">
+
+                  <div>
+
+                    <span>
+                      UP
+                    </span>
+
+                    <strong>
+                      {{
+                        h.probability_up * 100
+                        | number:'1.1-1'
+                      }}%
+                    </strong>
+
+                  </div>
+
+
+                  <div>
+
+                    <span>
+                      FLAT
+                    </span>
+
+                    <strong>
+                      {{
+                        h.probability_sideways * 100
+                        | number:'1.1-1'
+                      }}%
+                    </strong>
+
+                  </div>
+
+
+                  <div>
+
+                    <span>
+                      DOWN
+                    </span>
+
+                    <strong>
+                      {{
+                        h.probability_down * 100
+                        | number:'1.1-1'
+                      }}%
+                    </strong>
+
+                  </div>
+
+                </div>
+
+
+                <div class="forecast-confidence">
+
+                  Uncertainty
+
+                  {{
+                    h.uncertainty * 100
+                    | number:'1.2-2'
+                  }}%
+
+                </div>
+
+              </div>
+
+
+
+              <!-- 5 DAYS -->
+
+              <div
+                class="forecast-card"
+                *ngIf="f.forecasts?.['5d'] as h"
+              >
+
+                <div class="forecast-header">
+
+                  <span>
+                    5 DAYS
+                  </span>
+
+                  <strong
+                    [class.forecast-up]="h.direction === 'up'"
+                    [class.forecast-down]="h.direction === 'down'"
+                  >
+                    {{ h.direction | uppercase }}
+                  </strong>
+
+                </div>
+
+
+                <div class="forecast-return">
+
+                  {{
+                    h.expected_return * 100
+                    | number:'1.2-2'
+                  }}%
+
+                </div>
+
+
+                <div class="forecast-probs">
+
+                  <div>
+
+                    <span>
+                      UP
+                    </span>
+
+                    <strong>
+                      {{
+                        h.probability_up * 100
+                        | number:'1.1-1'
+                      }}%
+                    </strong>
+
+                  </div>
+
+
+                  <div>
+
+                    <span>
+                      FLAT
+                    </span>
+
+                    <strong>
+                      {{
+                        h.probability_sideways * 100
+                        | number:'1.1-1'
+                      }}%
+                    </strong>
+
+                  </div>
+
+
+                  <div>
+
+                    <span>
+                      DOWN
+                    </span>
+
+                    <strong>
+                      {{
+                        h.probability_down * 100
+                        | number:'1.1-1'
+                      }}%
+                    </strong>
+
+                  </div>
+
+                </div>
+
+
+                <div class="forecast-confidence">
+
+                  Uncertainty
+
+                  {{
+                    h.uncertainty * 100
+                    | number:'1.2-2'
+                  }}%
+
+                </div>
+
+              </div>
+
+
+
+              <!-- 20 DAYS -->
+
+              <div
+                class="forecast-card"
+                *ngIf="f.forecasts?.['20d'] as h"
+              >
+
+                <div class="forecast-header">
+
+                  <span>
+                    20 DAYS
+                  </span>
+
+                  <strong
+                    [class.forecast-up]="h.direction === 'up'"
+                    [class.forecast-down]="h.direction === 'down'"
+                  >
+                    {{ h.direction | uppercase }}
+                  </strong>
+
+                </div>
+
+
+                <div class="forecast-return">
+
+                  {{
+                    h.expected_return * 100
+                    | number:'1.2-2'
+                  }}%
+
+                </div>
+
+
+                <div class="forecast-probs">
+
+                  <div>
+
+                    <span>
+                      UP
+                    </span>
+
+                    <strong>
+                      {{
+                        h.probability_up * 100
+                        | number:'1.1-1'
+                      }}%
+                    </strong>
+
+                  </div>
+
+
+                  <div>
+
+                    <span>
+                      FLAT
+                    </span>
+
+                    <strong>
+                      {{
+                        h.probability_sideways * 100
+                        | number:'1.1-1'
+                      }}%
+                    </strong>
+
+                  </div>
+
+
+                  <div>
+
+                    <span>
+                      DOWN
+                    </span>
+
+                    <strong>
+                      {{
+                        h.probability_down * 100
+                        | number:'1.1-1'
+                      }}%
+                    </strong>
+
+                  </div>
+
+                </div>
+
+
+                <div class="forecast-confidence">
+
+                  Uncertainty
+
+                  {{
+                    h.uncertainty * 100
+                    | number:'1.2-2'
+                  }}%
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+
+            <!-- FORECAST DETAILS -->
+
+            <div class="forecast-details">
+
+
+              <div>
+
+                <span>
+                  1D SIGNAL
+                </span>
+
+                <strong>
+                  {{
+                    f.horizon_summary?.['1d']?.direction
+                    | uppercase
+                  }}
+                </strong>
+
+              </div>
+
+
+              <div>
+
+                <span>
+                  5D SIGNAL
+                </span>
+
+                <strong>
+                  {{
+                    f.horizon_summary?.['5d']?.direction
+                    | uppercase
+                  }}
+                </strong>
+
+              </div>
+
+
+              <div>
+
+                <span>
+                  20D SIGNAL
+                </span>
+
+                <strong>
+                  {{
+                    f.horizon_summary?.['20d']?.direction
+                    | uppercase
+                  }}
+                </strong>
+
+              </div>
+
+            </div>
+
+
+
+            <!-- FORECAST DISCLAIMER -->
+
+            <div class="forecast-disclaimer">
+
+              <strong>
+                Research estimate
+              </strong>
+
+              Probabilities are currently
+
+              <strong>
+                uncalibrated
+              </strong>
+
+              and should not be interpreted as
+              guaranteed future outcomes.
+
+            </div>
+
+          </div>
+
+
+
+          <!-- NO FORECAST -->
+
+          <div
+            class="empty-inline"
+            *ngIf="!forecast() && !forecastLoading()"
+          >
+            Forecast unavailable for this security.
+          </div>
+
+        </article>
+
+
+
+        <!-- ================================================= -->
+        <!-- ANALYST DISCLAIMER -->
+        <!-- ================================================= -->
+
+        <article class="analyst-disclaimer">
+
+          <strong>
+            Research estimate
+          </strong>
+
+          <p>
+            Quantitative probabilities are currently
+            uncalibrated research estimates. They are not
+            guaranteed outcomes, investment recommendations
+            or certainty about future prices. Model outputs
+            should be evaluated together with primary-source
+            financial evidence, valuation assumptions and
+            current events.
+          </p>
+
+        </article>
+
+
+      </section>
+
+    </ng-container>
+
+
+
+    <!-- ======================================================= -->
+    <!-- EMPTY STATE -->
+    <!-- ======================================================= -->
+
+    <ng-template #emptyState>
+
+      <section class="welcome panel">
+
+        <div class="welcome-glow"></div>
+
+
+        <span class="section-kicker">
+          AI EQUITY RESEARCH LAB
+        </span>
+
+
+        <h2>
+
+          Institutional-style research.
+
+          <br>
+
+          <em>
+            Built for your own terminal.
+          </em>
+
+        </h2>
+
+
+        <p>
+          Search a ticker to combine market data,
+          quantitative signals, risk, valuation and
+          machine-learning probabilities in one
+          research workspace.
+        </p>
+
+
+        <div class="welcome-actions">
+
+          <button
+            (click)="analyze('AAPL')"
+          >
+            Analyze AAPL →
+          </button>
+
+
+          <button
+            class="secondary"
+            (click)="analyze('NVDA')"
+          >
+            Analyze NVDA
+          </button>
+
+        </div>
+
+      </section>
+
+    </ng-template>
+
+
+
+    <!-- ======================================================= -->
+    <!-- FOOTER -->
+    <!-- ======================================================= -->
+
+    <footer>
+
+      <span>
+        EquityOS • Personal research use
+      </span>
+
+      <span>
+        Data → Quant → Valuation → ML → AI Research
+      </span>
+
+    </footer>
+
+
+  </main>
+
+</div>

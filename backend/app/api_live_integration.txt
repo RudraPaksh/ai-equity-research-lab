@@ -1,0 +1,32 @@
+# Add these imports to backend/app/main.py
+
+from .market.upstox_live import UpstoxLiveManager
+from .api.live import router as live_router
+
+# Create this once, near your other application-level singletons.
+live_manager = UpstoxLiveManager(settings.upstox_access_token)
+
+# Register the REST/WebSocket routes after creating `app`.
+app.include_router(live_router, dependencies=[])
+
+# IMPORTANT:
+# FastAPI dependency injection is needed for `manager` parameters in live.py.
+# Add this dependency override immediately after live_manager is created:
+#
+# from fastapi import Request
+#
+# async def get_live_manager():
+#     return live_manager
+#
+# Then change each `manager: UpstoxLiveManager` parameter in api/live.py to:
+#
+# manager: UpstoxLiveManager = Depends(get_live_manager)
+#
+# and import Depends from fastapi.
+#
+# This keeps the live manager as a single shared process-level connection.
+
+# Add shutdown cleanup:
+@app.on_event("shutdown")
+async def shutdown_live_market():
+    live_manager.shutdown()
